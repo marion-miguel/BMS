@@ -80,54 +80,54 @@
           </template>
 
           <template v-slot:body-cell-action="props">
-            <q-td :props="props" class="text-center">
-              <q-btn flat round icon="more_vert">
-                <q-menu>
-                  <q-list style="min-width: 100px">
-                    <q-item>
-                      <div class="column q-gutter-y-sm full-width">
-                        <q-btn
-                          class="q-px-sm full-width"
-                          unelevated
-                          square
-                          icon="visibility"
-                          color="green"
-                          size="sm"
-                          label="View"
-                          align="left"
-                          @click="viewRequest(props.row)"
-                        />
-                        <q-btn
-                          v-if="props.row.status === 'Pending'"
-                          class="q-px-sm full-width"
-                          unelevated
-                          square
-                          icon="check"
-                          color="orange"
-                          size="sm"
-                          label="Approve"
-                          align="left"
-                          @click="approveRequest(props.row)"
-                        />
-                        <q-btn
-                          v-if="props.row.status === 'Pending'"
-                          class="q-px-sm full-width"
-                          unelevated
-                          square
-                          icon="close"
-                          color="red"
-                          size="sm"
-                          label="Decline"
-                          align="left"
-                          @click="declineRequest(props.row)"
-                        />
-                      </div>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-td>
-          </template>
+          <q-td :props="props" class="text-center">
+            <q-btn flat round icon="more_vert">
+              <q-menu>
+                <q-list style="min-width: 100px">
+                  <q-item>
+                    <div class="column q-gutter-y-sm full-width">
+                      <q-btn
+                        class="q-px-sm full-width"
+                        unelevated
+                        square
+                        icon="visibility"
+                        color="green"
+                        size="sm"
+                        label="View"
+                        align="left"
+                        @click="viewRequest(props.row)"
+                      />
+                      <q-btn
+                        v-if="props.row.status === 'Pending'"
+                        class="q-px-sm full-width"
+                        unelevated
+                        square
+                        icon="edit"
+                        color="orange"
+                        size="sm"
+                        label="Edit"
+                        align="left"
+                        @click="editRequest(props.row)"
+                      />
+                      <q-btn
+                        v-if="props.row.status === 'Pending'"
+                        class="q-px-sm full-width"
+                        unelevated
+                        square
+                        icon="delete"
+                        color="red"
+                        size="sm"
+                        label="Delete"
+                        align="left"
+                        @click="deleteRequest(props.row)"
+                      />
+                    </div>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-td>
+        </template>
         </q-table>
       </div>
 
@@ -156,53 +156,53 @@
                 </div>
               </div>
 
-              <div class="row justify-end q-mt-sm">
-                <q-btn flat round icon="more_vert">
-                  <q-menu>
-                    <q-list style="min-width: 100px">
-                      <q-item>
-                        <div class="column q-gutter-y-sm full-width">
-                          <q-btn
-                            class="q-px-sm full-width"
-                            unelevated
-                            square
-                            icon="visibility"
-                            color="green"
-                            size="sm"
-                            label="View"
-                            align="left"
-                            @click="viewRequest(row)"
-                          />
-                          <q-btn
-                            v-if="row.status === 'Pending'"
-                            class="q-px-sm full-width"
-                            unelevated
-                            square
-                            icon="check"
-                            color="orange"
-                            size="sm"
-                            label="Approve"
-                            align="left"
-                            @click="approveRequest(row)"
-                          />
-                          <q-btn
-                            v-if="row.status === 'Pending'"
-                            class="q-px-sm full-width"
-                            unelevated
-                            square
-                            icon="close"
-                            color="red"
-                            size="sm"
-                            label="Decline"
-                            align="left"
-                            @click="declineRequest(row)"
-                          />
-                        </div>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-btn>
-              </div>
+              <div class="row justify-start q-mt-sm">
+              <q-btn flat round icon="more_vert">
+                <q-menu>
+                  <q-list style="min-width: 100px">
+                    <q-item>
+                      <div class="column q-gutter-y-sm full-width">
+                        <q-btn
+                          class="q-px-sm full-width"
+                          unelevated
+                          square
+                          icon="visibility"
+                          color="green"
+                          size="sm"
+                          label="View"
+                          align="left"
+                          @click="viewRequest(row)"
+                        />
+                        <q-btn
+                          v-if="row.status === 'Pending'"
+                          class="q-px-sm full-width"
+                          unelevated
+                          square
+                          icon="edit"
+                          color="orange"
+                          size="sm"
+                          label="Edit"
+                          align="left"
+                          @click="editRequest(row)"
+                        />
+                        <q-btn
+                          v-if="row.status === 'Pending'"
+                          class="q-px-sm full-width"
+                          unelevated
+                          square
+                          icon="delete"
+                          color="red"
+                          size="sm"
+                          label="Delete"
+                          align="left"
+                          @click="deleteRequest(row)"
+                        />
+                      </div>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
             </q-card-section>
           </q-card>
         </template>
@@ -540,6 +540,84 @@ const viewRequest = (row) => {
     }
   })
 }
+
+// Add these functions in your script setup section after viewRequest:
+
+const editRequest = (row) => {
+  router.push({
+    path: '/LAE',
+    query: {
+      id: row.id,
+      dateCreated: row.dateCreated,
+      employeeName: row.employeeName,
+      leaveDate: row.leaveDate,
+      typeOfLeave: row.typeOfLeave,
+      status: row.status
+    }
+  })
+}
+const deleteRequest = async (row) => {
+  try {
+    const confirmed = await $q.dialog({
+      title: 'Delete Leave Request',
+      message: `Are you sure you want to delete this leave request for ${row.employeeName}?`,
+      ok: {
+        label: 'Delete',
+        color: 'negative',
+        flat: false
+      },
+      cancel: {
+        label: 'Cancel',
+        color: 'grey',
+        flat: true
+      },
+      persistent: true,
+      html: true // Enable HTML content in message
+    }).onOk(async () => {
+      try {
+        // In a real application, you would make an API call here
+        // await api.deleteLeaveRequest(row.id)
+
+        // Remove from local data
+        const index = rows.value.findIndex(item => item.id === row.id)
+        if (index !== -1) {
+          // Remove the item
+          rows.value.splice(index, 1)
+
+          // Update pagination if necessary
+          if (paginatedRows.value.length === 0 && pagination.value.page > 1) {
+            pagination.value.page--
+          }
+
+          $q.notify({
+            message: 'Leave request deleted successfully',
+            type: 'positive',
+            position: 'top',
+            timeout: 2000
+          })
+        } else {
+          throw new Error('Leave request not found')
+        }
+      } catch (error) {
+        $q.notify({
+          message: 'Failed to delete leave request',
+          type: 'negative',
+          position: 'top',
+          timeout: 2000
+        })
+      }
+    })
+  } catch (error) {
+    console.error('Delete operation error:', error)
+    $q.notify({
+      message: 'Error processing delete operation',
+      type: 'negative',
+      position: 'top',
+      timeout: 2000
+    })
+  }
+}
+
 
 const approveRequest = async (row) => {
   try {
