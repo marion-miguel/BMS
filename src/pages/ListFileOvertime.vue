@@ -105,30 +105,6 @@
                           align="left"
                           @click="onView(props.row)"
                         />
-                        <q-btn
-                          class="q-px-sm width"
-                          unelevated
-                          square
-                          color="orange"
-                          icon="edit"
-                          size="sm"
-                          label="Edit"
-                          align="left"
-                          @click="onEdit(props.row)"
-                          :disable="props.row.status !== 'Pending'"
-                        />
-                        <q-btn
-                          class="q-px-sm width"
-                          unelevated
-                          square
-                          color="red"
-                          icon="delete"
-                          size="sm"
-                          label="Delete"
-                          align="left"
-                          @click="confirmDelete(props.row)"
-                          :disable="props.row.status !== 'Pending'"
-                        />
                       </div>
                     </q-item>
                   </q-list>
@@ -187,31 +163,30 @@
                   <div>{{ row.description }}</div>
                 </div>
 
-                <div class="row justify-end q-gutter-sm">
-                  <q-btn
-                    flat
-                    round
-                    color="green"
-                    icon="visibility"
-                    @click="onView(row)"
-                  />
-                  <q-btn
-                    flat
-                    round
-                    color="orang"
-                    icon="edit"
-                    @click="onEdit(row)"
-                    :disable="row.status !== 'Pending'"
-                  />
-                  <q-btn
-                    flat
-                    round
-                    color="red"
-                    icon="delete"
-                    @click="confirmDelete(row)"
-                    :disable="row.status !== 'Pending'"
-                  />
-                </div>
+                <div class="row justify-start q-gutter-sm">
+  <q-btn flat round color="grey" icon="more_vert">
+    <q-menu>
+      <q-list style="min-width: 100px">
+        <q-item>
+          <div class="column q-gutter-y-sm full-width">
+            <q-btn
+              class="q-px-sm width"
+              unelevated
+              square
+              color="green"
+              icon="visibility"
+              size="sm"
+              label="View"
+              align="left"
+              @click="onView(row)"
+            />
+
+          </div>
+        </q-item>
+      </q-list>
+    </q-menu>
+  </q-btn>
+</div>
               </q-card-section>
             </q-card>
           </div>
@@ -256,74 +231,6 @@
         </div>
       </div>
     </q-card>
-
-    <!-- Delete Confirmation Dialog -->
-    <q-dialog v-model="showDeleteDialog" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="warning" color="negative" text-color="white" />
-          <span class="q-ml-sm">Are you sure you want to delete this overtime request?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Delete" color="negative" @click="handleDelete" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- Edit Dialog -->
-    <q-dialog v-model="showEditDialog" persistent>
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">Edit Overtime Request</div>
-        </q-card-section>
-
-        <q-card-section>
-          <div class="q-gutter-md">
-            <q-input
-              v-model="editForm.dateFilled"
-              label="Date Filled"
-              type="date"
-              outlined
-              :rules="[val => !!val || 'Date is required']"
-            />
-
-            <div class="row q-gutter-sm">
-              <q-input
-                v-model="editForm.timeFrom"
-                label="Time From"
-                type="time"
-                outlined
-                class="col"
-                :rules="[val => !!val || 'Time is required']"
-              />
-              <q-input
-                v-model="editForm.timeTo"
-                label="Time To"
-                type="time"
-                outlined
-                class="col"
-                :rules="[val => !!val || 'Time is required']"
-              />
-            </div>
-
-            <q-input
-              v-model="editForm.description"
-              label="Description"
-              type="textarea"
-              outlined
-              :rules="[val => !!val || 'Description is required']"
-            />
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Save" color="positive" @click="handleEdit" :loading="isEditing" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
@@ -398,12 +305,7 @@ const showEditDialog = ref(false)
 const selectedRow = ref(null)
 const isEditing = ref(false)
 
-const editForm = ref({
-  dateFilled: '',
-  timeFrom: '',
-  timeTo: '',
-  description: ''
-})
+
 
 const rows = ref([
   {
@@ -576,7 +478,6 @@ const paginatedRows = computed(() => {
     }
   }
 
-  // View functionality
   const onView = (row) => {
     router.push({
       path: '/LFOV',
@@ -595,15 +496,6 @@ const paginatedRows = computed(() => {
 
   const emits = defineEmits(['update:rows'])
 
-const handleRowUpdate = (updatedRow) => {
-  const index = rows.value.findIndex(row => row.id === updatedRow.id)
-  if (index !== -1) {
-    rows.value[index] = updatedRow
-    emits('update:rows', rows.value)
-  }
-}
-
-// Add this watch in ListFileOvertime.vue
 watch(() => route.query, (newQuery) => {
   if (newQuery.updated) {
     const updatedRow = {
@@ -619,97 +511,7 @@ watch(() => route.query, (newQuery) => {
   }
 })
 
-  const confirmDelete = (row) => {
-  selectedRow.value = row
-  showDeleteDialog.value = true
-}
 
-const handleDelete = async () => {
-  try {
-    const index = rows.value.findIndex(row => row.id === selectedRow.value.id)
-    if (index !== -1) {
-      rows.value.splice(index, 1)
-
-      $q.notify({
-        type: 'positive',
-        message: 'Overtime request deleted successfully',
-        position: 'top',
-      })
-
-      showDeleteDialog.value = false
-    }
-  } catch (error) {
-    console.error('Error deleting overtime request:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to delete overtime request',
-      position: 'top',
-    })
-  } finally {
-    selectedRow.value = null
-  }
-}
-
-  // Edit functionality
-  const onEdit = (row) => {
-  selectedRow.value = row
-  const [timeFrom, timeTo] = row.timeFromTo.split(' - ')
-
-  editForm.value = {
-    dateFilled: row.dateFilled,
-    timeFrom: convertTo24Hour(timeFrom),
-    timeTo: convertTo24Hour(timeTo),
-    description: row.description
-  }
-
-  showEditDialog.value = true
-}
-
-const handleEdit = async () => {
-  try {
-    if (!selectedRow.value) return
-
-    isEditing.value = true
-
-    // Validate form
-    if (!editForm.value.dateFilled || !editForm.value.timeFrom ||
-        !editForm.value.timeTo || !editForm.value.description) {
-      throw new Error('Please fill in all required fields')
-    }
-
-    const timeFromTo = `${convertTo12Hour(editForm.value.timeFrom)} - ${convertTo12Hour(editForm.value.timeTo)}`
-    const duration = calculateDuration(editForm.value.timeFrom, editForm.value.timeTo)
-
-    const index = rows.value.findIndex(row => row.id === selectedRow.value.id)
-    if (index !== -1) {
-      rows.value[index] = {
-        ...rows.value[index],
-        dateFilled: editForm.value.dateFilled,
-        timeFromTo,
-        duration,
-        description: editForm.value.description
-      }
-
-      $q.notify({
-        type: 'positive',
-        message: 'Overtime request updated successfully',
-        position: 'top',
-      })
-
-      showEditDialog.value = false
-    }
-  } catch (error) {
-    console.error('Error updating overtime request:', error)
-    $q.notify({
-      type: 'negative',
-      message: error.message || 'Failed to update overtime request',
-      position: 'top',
-    })
-  } finally {
-    isEditing.value = false
-    selectedRow.value = null
-  }
-}
 const convertTo24Hour = (time12h) => {
   if (!time12h) return ''
   const [time, modifier] = time12h.split(' ')
