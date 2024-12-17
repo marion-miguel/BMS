@@ -131,48 +131,28 @@
               <div class="col-12 q-gutter-sm q-mt-md">
                 <template v-if="formData.status === 'Pending' && !isEditing">
                   <q-btn
-                    color="positive"
                     label="Approve"
                     @click="onApprove"
                     :loading="isLoading"
                     icon="check"
                   />
                   <q-btn
-                    color="negative"
                     label="Decline"
                     @click="onDecline"
                     :loading="isLoading"
                     icon="close"
                   />
                   <q-btn
-                    color="primary"
                     label="Edit"
                     @click="startEdit"
                     :loading="isLoading"
                     icon="edit"
                   />
                   <q-btn
-                    color="negative"
                     label="Delete"
                     @click="confirmDelete"
                     :loading="isLoading"
                     icon="delete"
-                  />
-                </template>
-                <template v-if="isEditing">
-                  <q-btn
-                    color="positive"
-                    label="Save"
-                    @click="saveEdit"
-                    :loading="isLoading"
-                    icon="save"
-                  />
-                  <q-btn
-                    color="grey"
-                    label="Cancel"
-                    @click="cancelEdit"
-                    :loading="isLoading"
-                    icon="close"
                   />
                 </template>
               </div>
@@ -205,21 +185,6 @@
         </q-card>
       </div>
     </div>
-
-    <!-- Delete Confirmation Dialog -->
-    <q-dialog v-model="showDeleteDialog" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="warning" color="negative" text-color="white" />
-          <span class="q-ml-sm">Are you sure you want to delete this overtime request?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Delete" color="negative" @click="handleDelete" :loading="isLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
@@ -318,14 +283,14 @@ onMounted(() => {
 const getStatusColorClass = (status) => {
   switch (status?.toLowerCase()) {
     case 'approved':
-      return 'text-green'
+      return 'text'
     case 'rejected':
     case 'declined':
-      return 'text-red'
+      return 'text'
     case 'pending':
-      return 'text-orange'
+      return 'text'
     default:
-      return 'text-grey'
+      return 'text'
   }
 }
 
@@ -435,41 +400,41 @@ const handleDelete = async () => {
 const handleStatusChange = async (newStatus, actionType) => {
   isLoading.value = true
 
-  try {
-    await $q.dialog({
-      title: `${actionType} Overtime Request`,
-      message: `Are you sure you want to ${actionType.toLowerCase()} this overtime request?`,
-      cancel: true,
-      persistent: true,
-      ok: {
-        color: actionType === 'Approve' ? 'positive' : 'negative',
-        label: actionType,
-        flat: true
-      },
-      cancel: {
-        flat: true,
-        label: 'Cancel'
-      }
-    }).onOk(async () => {
-      formData.value.status = newStatus
+try {
+  await $q.dialog({
+    title: `${actionType} Overtime Request`,
+    message: `Are you sure you want to ${actionType.toLowerCase()} this overtime request?`,
+    cancel: true,
+    persistent: true,
+    ok: {
+      label: actionType,
+      flat: true
+    },
+    cancel: {
+      flat: true,
+      label: 'Cancel'
+    }
+  }).onOk(async () => {
+    formData.value.status = newStatus
 
-      activities.value.unshift({
-        id: Date.now(),
-        action: `Request ${newStatus}`,
-        description: `Overtime request was ${newStatus.toLowerCase()} by admin`,
-        timestamp: date.formatDate(Date.now(), 'MMM D, YYYY HH:mm')
-      })
-
-      $q.notify({
-        type: actionType === 'Approve' ? 'positive' : 'negative',
-        message: `Overtime request ${newStatus.toLowerCase()} successfully`,
-        position: 'top',
-        timeout: 2000
-      })
-
-      setTimeout(() => router.push('/overtime'), 2000)
+    activities.value.unshift({
+      id: Date.now(),
+      action: `Request ${newStatus}`,
+      description: `Overtime request was ${newStatus.toLowerCase()} by admin`,
+      timestamp: date.formatDate(Date.now(), 'MMM D, YYYY HH:mm')
     })
-  } catch (error) {
+
+    $q.notify({
+      type: actionType === 'Approve' ? 'positive' : 'negative',
+      message: `Overtime request ${newStatus.toLowerCase()} successfully`,
+      position: 'top',
+      timeout: 2000
+    })
+
+    setTimeout(() => router.push('/overtime'), 2000)
+  })
+}
+  catch (error) {
     console.error('Error:', error)
     $q.notify({
       type: 'negative',
@@ -501,21 +466,6 @@ const onDecline = () => handleStatusChange('Declined', 'Decline')
   width: 100%;
 }
 
-.text-green {
-  color: #21BA45 !important;
-}
-
-.text-red {
-  color: #C10015 !important;
-}
-
-.text-orange {
-  color: #F2C037 !important;
-}
-
-.text-grey {
-  color: #9E9E9E !important;
-}
 
 :deep(.custom-input) {
   .q-field__control {
@@ -550,7 +500,6 @@ const onDecline = () => handleStatusChange('Declined', 'Decline')
 :deep(.no-data .q-field__input) {
   &:empty:before {
     content: '-';
-    color: inherit;
     line-height: 32px !important;
   }
 }
