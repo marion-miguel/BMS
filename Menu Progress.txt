@@ -1,0 +1,29 @@
+Dashboard
+*Announcements
+	Announcements✅
+		View✅
+	Upcoming Events✅
+		View✅
+	Office Memo✅
+		View✅
+Policies✅
+Attendance
+List Missing Logs✅
+List File Overtime✅
+	Apply✅
+Leave Application✅
+	Apply
+*For Approver
+	List of Leave Applications
+	List of Overtime Files
+	List of budget Request
+	List of budget Request
+		For Employee
+		For Supplier/Project
+Payslip
+*Budget Request
+	For Employee
+	For Supplier/Project
+IPCR
+Profile✅
+
