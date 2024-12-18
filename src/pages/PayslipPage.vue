@@ -193,15 +193,31 @@
         </div>
       </div>
     </q-card>
+
+    <PayslipDialog
+      v-model="showPayslipDialog"
+      :payslip-data="selectedPayslip"
+    />
   </q-page>
 </template>
+
+<script>
+// Regular script block for component options
+import PayslipDialog from '../pages/print/PayslipDialog.vue'
+
+export default {
+  name: 'PayslipPage',
+  components: {
+    PayslipDialog
+  }
+}
+</script>
 
 <script setup>
 import { ref, computed } from 'vue'
 
-defineOptions({
-  name: 'PayslipPage'
-})
+const showPayslipDialog = ref(false)
+const selectedPayslip = ref(null)
 
 const search = ref('')
 const columns = [
@@ -415,11 +431,68 @@ const onNextPage = () => {
 }
 
 function viewPayslip(row) {
-  console.log('Viewing payslip:', row)
+  selectedPayslip.value = {
+    payrollDate: row.payrollDate,
+    employeeName: 'NADINE LUSTRE',
+    employeeId: '0000001',
+    daysWorked: 10.00,
+    dailyRate: 0.00,
+    basicSalary: 0.00,
+    overtime: 0.00,
+    overtimeAmount: 0.00,
+    snwHoliday: 0.00,
+    rHoliday: 0.00,
+    payrollAllowance: 0.00,
+    grossPay: 0.00,
+    sss: 180.00,
+    pagIbig: 0.00,
+    philHealth: 0.00,
+    withholdingTax: 0.00,
+    sssLoan: 0.00,
+    hdmfLoan: 0.00,
+    cashAdvance: 0.00,
+    tardiness: 0.00,
+    tardinessAmount: 0.00,
+    totalDeductions: 180.00,
+    netPay: -180.00
+  }
+  showPayslipDialog.value = true
 }
 
 function downloadPayslip(row) {
-  console.log('Downloading payslip:', row)
+  // First set the payslip data
+  selectedPayslip.value = {
+    payrollDate: row.payrollDate,
+    employeeName: 'NADINE LUSTRE',
+    employeeId: '0000001',
+    daysWorked: 10.00,
+    dailyRate: 0.00,
+    basicSalary: 0.00,
+    overtime: 0.00,
+    overtimeAmount: 0.00,
+    snwHoliday: 0.00,
+    rHoliday: 0.00,
+    payrollAllowance: 0.00,
+    grossPay: 0.00,
+    sss: 180.00,
+    pagIbig: 0.00,
+    philHealth: 0.00,
+    withholdingTax: 0.00,
+    sssLoan: 0.00,
+    hdmfLoan: 0.00,
+    cashAdvance: 0.00,
+    tardiness: 0.00,
+    tardinessAmount: 0.00,
+    totalDeductions: 180.00,
+    netPay: -180.00
+  }
+
+  // Show dialog and trigger print after a short delay
+  showPayslipDialog.value = true
+  setTimeout(() => {
+    const printBtn = document.querySelector('.print-button')
+    if (printBtn) printBtn.click()
+  }, 500)
 }
 
 // Insert Payslip Function
@@ -433,7 +506,6 @@ function insertPayslip(datePosted, payrollDate) {
   console.log('New payslip added:', newPayslip)
 }
 </script>
-
 
 <style>
 .entries-select {
