@@ -63,6 +63,7 @@ const routes = [
 //PRINT
       { path: '/RFP',component: () => import('../pages/print/FERequestForPayment.vue')},
       { path: '/CAF',component: () => import('../pages/print/FECashAdvanceForm.vue')},
+      { path: '/PayslipDialog',component: () => import('../pages/print/PayslipDialog.vue')},
 
     ]},
 
