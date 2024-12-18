@@ -141,7 +141,7 @@ const printPayslip = () => {
       <style>
         @media print {
           @page {
-            size: A4;
+            size: letter;
             margin: 15mm;
           }
           body {
