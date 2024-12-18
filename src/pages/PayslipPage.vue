@@ -84,11 +84,11 @@
                           unelevated
                           square
                           color="green"
-                          icon="download"
+                          icon="print"
                           size="sm"
-                          label="Download"
+                          label="Print"
                           align="left"
-                          @click="downloadPayslip(props.row)"
+                          @click="printPayslip(props.row)"
                         />
                       </div>
                     </q-item>
@@ -137,11 +137,11 @@
                               unelevated
                               square
                               color="green"
-                              icon="download"
+                              icon="print"
                               size="sm"
-                              label="Download"
+                              label="Print"
                               align="left"
-                              @click="downloadPayslip(row)"
+                              @click="printPayslip(row)"
                             />
                           </div>
                         </q-item>
@@ -195,6 +195,7 @@
     </q-card>
 
     <PayslipDialog
+      ref="payslipDialogRef"
       v-model="showPayslipDialog"
       :payslip-data="selectedPayslip"
     />
@@ -214,11 +215,14 @@ export default {
 </script>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
+// Component refs
 const showPayslipDialog = ref(false)
 const selectedPayslip = ref(null)
+const payslipDialogRef = ref(null)
 
+// Search and table setup
 const search = ref('')
 const columns = [
   {
@@ -246,6 +250,7 @@ const columns = [
   }
 ]
 
+// Sample data - replace with your actual data source
 const rows = ref([
   {
     id: 1,
@@ -299,6 +304,7 @@ const rows = ref([
   },
 ])
 
+// Pagination setup
 const pagination = ref({
   page: 1,
   rowsPerPage: 5,
@@ -307,7 +313,7 @@ const pagination = ref({
   rowsNumber: 0
 })
 
-// Custom sort method
+// Sorting method
 const customSort = (rows, sortBy, descending) => {
   const data = [...rows]
 
@@ -332,7 +338,7 @@ const customSort = (rows, sortBy, descending) => {
   return data
 }
 
-// Request handler for table
+// Table request handler
 const onRequest = (props) => {
   const { page, rowsPerPage, sortBy, descending } = props.pagination
 
@@ -346,7 +352,7 @@ const onRequest = (props) => {
   }
 }
 
-// Computed properties with sorting
+// Computed properties
 const filteredRows = computed(() => {
   if (!search.value) return rows.value
 
@@ -401,7 +407,7 @@ const displayedPages = computed(() => {
   return pages
 })
 
-// Methods
+// Event handlers
 const onUpdatePagination = (newPagination) => {
   pagination.value = {
     ...pagination.value,
@@ -414,22 +420,17 @@ const onUpdatePagination = (newPagination) => {
 
 const onPreviousPage = () => {
   if (pagination.value.page > 1) {
-    pagination.value = {
-      ...pagination.value,
-      page: pagination.value.page - 1
-    }
+    pagination.value.page--
   }
 }
 
 const onNextPage = () => {
   if (pagination.value.page < totalPages.value) {
-    pagination.value = {
-      ...pagination.value,
-      page: pagination.value.page + 1
-    }
+    pagination.value.page++
   }
 }
 
+// Payslip action handlers
 function viewPayslip(row) {
   selectedPayslip.value = {
     payrollDate: row.payrollDate,
@@ -459,7 +460,7 @@ function viewPayslip(row) {
   showPayslipDialog.value = true
 }
 
-function downloadPayslip(row) {
+async function printPayslip(row) {
   // First set the payslip data
   selectedPayslip.value = {
     payrollDate: row.payrollDate,
@@ -487,12 +488,19 @@ function downloadPayslip(row) {
     netPay: -180.00
   }
 
-  // Show dialog and trigger print after a short delay
+  // Show dialog
   showPayslipDialog.value = true
-  setTimeout(() => {
-    const printBtn = document.querySelector('.print-button')
-    if (printBtn) printBtn.click()
-  }, 500)
+
+  // Wait for dialog to be mounted
+  await nextTick()
+
+  // Trigger download in the dialog component
+  if (payslipDialogRef.value) {
+    // Add a small delay to ensure content is rendered
+    setTimeout(() => {
+      payslipDialogRef.value.printPayslip()
+    }, 500)
+  }
 }
 
 // Insert Payslip Function
@@ -504,6 +512,27 @@ function insertPayslip(datePosted, payrollDate) {
   }
   rows.value.push(newPayslip)
   console.log('New payslip added:', newPayslip)
+}
+
+// Delete Payslip Function
+function deletePayslip(id) {
+  const index = rows.value.findIndex(row => row.id === id)
+  if (index !== -1) {
+    rows.value.splice(index, 1)
+    console.log('Payslip deleted:', id)
+  }
+}
+
+// Update Payslip Function
+function updatePayslip(id, updates) {
+  const index = rows.value.findIndex(row => row.id === id)
+  if (index !== -1) {
+    rows.value[index] = {
+      ...rows.value[index],
+      ...updates
+    }
+    console.log('Payslip updated:', id)
+  }
 }
 </script>
 
@@ -575,5 +604,20 @@ function insertPayslip(datePosted, payrollDate) {
 
 .q-mb-sm-xs {
   margin-bottom: 8px;
+}
+
+/* Print styles */
+@media print {
+  .q-page-container {
+    padding: 0 !important;
+  }
+
+  .q-page {
+    padding: 0 !important;
+  }
+
+  .q-card {
+    box-shadow: none !important;
+  }
 }
 </style>
