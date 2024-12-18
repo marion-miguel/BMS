@@ -50,11 +50,19 @@ const routes = [
       { path: '/FEBudgetRequestForm',component: () => import('../pages/forms/FEBudgetRequestForm.vue')},
       { path: '/FSPFormBudgetRequest',component: () => import('../pages/forms/FSPFormBudgetRequest.vue')},
       { path: '/EIPCR',component: () => import('../pages/forms/EIPCR.vue')},
+      { path: '/AttendanceForm',component: () => import('../pages/forms/AttendanceForm.vue')},
 
 //VIEW
       { path: '/MLV',component: () => import('../pages/view/MissingLogsView.vue')},
       { path: '/LFOV',component: () => import('../pages/view/ListFileOvertimeView.vue')},
       { path: '/LAV',component: () => import('../pages/view/LeaveApplicationView.vue')},
+
+//EDIT
+      { path: '/LAE',component: () => import('../pages/edit/LeaveApplicationEdit.vue')},
+
+//PRINT
+      { path: '/RFP',component: () => import('../pages/print/FERequestForPayment.vue')},
+      { path: '/CAF',component: () => import('../pages/print/FECashAdvanceForm.vue')},
 
     ]},
 
