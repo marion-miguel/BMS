@@ -35,8 +35,8 @@
         <!-- Time In/Out Buttons -->
         <div class="row justify-center q-mt-md q-gutter-md">
           <q-btn
-            :color="canTimeIn ? 'primary' : 'grey'"
-            :label="todayTimeLog?.timeIn ? 'Timed In' : 'Time In'"
+            :color="canTimeIn ? 'green' : 'grey'"
+            :label="todayTimeLog?.timeIn ? 'Time In' : 'Time In'"
             :disable="!canTimeIn"
             @click="timeIn"
             icon="login"
@@ -44,8 +44,8 @@
             <q-tooltip v-if="!isWorkingDay">Not a working day</q-tooltip>
           </q-btn>
           <q-btn
-            :color="canTimeOut ? 'negative' : 'grey'"
-            :label="todayTimeLog?.timeOut ? 'Timed Out' : 'Time Out'"
+            :color="canTimeOut ? 'green' : 'grey'"
+            :label="todayTimeLog?.timeOut ? 'Time Out' : 'Time Out'"
             :disable="!canTimeOut"
             @click="timeOut"
             icon="logout"
@@ -166,40 +166,69 @@
         </q-card-section>
 
         <q-card-section class="q-pt-md">
-          <div v-if="selectedDateTimeLog" class="row q-col-gutter-md">
-            <div class="col-6">
-              <div class="q-mb-md">
-                <div class="text-subtitle2 text-weight-medium">Time In:</div>
-                <div>{{ formatTime(selectedDateTimeLog.timeIn) }}</div>
-              </div>
-              <div class="q-mb-md">
-                <div class="text-subtitle2 text-weight-medium">Total Hours:</div>
-                <div>{{ calculateDateTotalTime(selectedDateTimeLog) }}</div>
-              </div>
-              <div>
-                <div class="text-subtitle2 text-weight-medium">Late:</div>
-                <div>{{ calculateDateLateTime(selectedDate, selectedDateTimeLog) }}</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="q-mb-md">
-                <div class="text-subtitle2 text-weight-medium">Time Out:</div>
-                <div>{{ selectedDateTimeLog.timeOut ? formatTime(selectedDateTimeLog.timeOut) : 'Not yet timed out' }}</div>
-              </div>
-              <div>
-                <div class="text-subtitle2 text-weight-medium">Undertime:</div>
-                <div>{{ calculateDateUndertime(selectedDate, selectedDateTimeLog) }}</div>
-              </div>
-            </div>
-          </div>
-          <div v-else class="text-grey-8">
-            No attendance record for this date
-          </div>
-        </q-card-section>
+  <div v-if="selectedDateTimeLog" class="row q-col-gutter-md">
+    <div class="col-6">
+      <div class="q-mb-md">
+        <div class="text-subtitle2 text-weight-medium">Time In:</div>
+        <div>{{ formatTime(selectedDateTimeLog.timeIn) }}</div>
+      </div>
+      <div class="q-mb-md">
+        <div class="text-subtitle2 text-weight-medium">Total Hours:</div>
+        <div>{{ calculateDateTotalTime(selectedDateTimeLog) }}</div>
+      </div>
+      <div>
+        <div class="text-subtitle2 text-weight-medium">Late:</div>
+        <div>{{ calculateDateLateTime(selectedDate, selectedDateTimeLog) }}</div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="q-mb-md">
+        <div class="text-subtitle2 text-weight-medium">Time Out:</div>
+        <div>{{ selectedDateTimeLog.timeOut ? formatTime(selectedDateTimeLog.timeOut) : 'Not yet timed out' }}</div>
+      </div>
+      <div>
+        <div class="text-subtitle2 text-weight-medium">Undertime:</div>
+        <div>{{ calculateDateUndertime(selectedDate, selectedDateTimeLog) }}</div>
+      </div>
+    </div>
+  </div>
+  <div v-else class="text-grey-8">
+    No attendance record for this date
+  </div>
+</q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" v-close-popup />
-        </q-card-actions>
+<q-card-actions class="row q-px-md q-pb-md">
+  <div class="row full-width justify-between items-center">
+    <q-btn
+      color="green"
+      no-caps
+      size="md"
+      style="width: 150px"
+      label="Submit Reason"
+      :to="{
+        path: '/AttendanceForm',
+        query: {
+          date: selectedDate?.toISOString().split('T')[0] || '',
+          type: 'timing_irregularity'
+        }
+      }"
+      :disable="!needsReason"
+      icon="edit_note"
+    >
+      <q-tooltip>
+        {{ needsReason ? 'Submit reason for irregular attendance' : 'No irregularity detected' }}
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      color="red"
+      flat
+      size="md"
+      style="width: 120px"
+      label="Close"
+      v-close-popup
+    />
+  </div>
+</q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
@@ -237,6 +266,15 @@ export default defineComponent({
   },
 
   computed: {
+    needsReason() {
+      if (!this.selectedDateTimeLog) return false
+
+      const hasLate = this.calculateDateLateTime(this.selectedDate, this.selectedDateTimeLog) !== '0 hrs 0 min'
+      const hasUndertime = this.calculateDateUndertime(this.selectedDate, this.selectedDateTimeLog) !== '0 hrs 0 min'
+
+      return hasLate || hasUndertime
+    },
+
     currentMonth() {
       return this.currentDate.toLocaleString('default', {
         month: 'long',
@@ -281,6 +319,32 @@ export default defineComponent({
   },
 
   methods: {
+
+    navigateToForm() {
+  if (!this.selectedDate) return
+
+  const dateStr = this.selectedDate.toISOString().split('T')[0]
+  const timeLog = this.selectedDateTimeLog
+
+  // Calculate times for the selected date
+  const lateTime = this.calculateDateLateTime(this.selectedDate, timeLog)
+  const undertimeValue = this.calculateDateUndertime(this.selectedDate, timeLog)
+  const totalTime = this.calculateDateTotalTime(timeLog)
+
+  this.$router.push({
+    path: '/AttendanceForm',
+    query: {
+      date: dateStr,
+      type: 'timing_irregularity',
+      late: lateTime,
+      undertime: undertimeValue,
+      totalHours: totalTime,
+      timeIn: timeLog?.timeIn || '',
+      timeOut: timeLog?.timeOut || ''
+    }
+  })
+},
+
     updateClock() {
       const now = new Date()
       this.clockDate = now.toLocaleDateString('en-US', {
@@ -702,5 +766,8 @@ export default defineComponent({
     transform: none;
     background-color: #f8f9fa;
   }
+}
+.q-btn {
+  width: 25%;
 }
 </style>
