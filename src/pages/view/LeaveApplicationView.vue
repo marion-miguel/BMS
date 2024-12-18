@@ -26,6 +26,7 @@
                   outlined
                   dense
                   readonly
+                  class="details-field"
                 />
               </div>
 
@@ -37,6 +38,7 @@
                   outlined
                   dense
                   readonly
+                  class="details-field"
                 />
               </div>
 
@@ -48,6 +50,7 @@
                   outlined
                   dense
                   readonly
+                  class="details-field"
                 />
               </div>
 
@@ -59,13 +62,14 @@
                   outlined
                   dense
                   readonly
+                  class="details-field"
                 />
               </div>
 
               <!-- Status -->
               <div class="col-12">
                 <div class="field-label">Status</div>
-                <div class="status-text">
+                <div class="status-text details-field">
                   {{ formData.status }}
                 </div>
               </div>
@@ -194,11 +198,35 @@ const onDecline = () => handleStatusChange('Declined', 'Decline')
 .field-label {
   font-weight: 500;
   margin-bottom: 4px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+
+
+:deep(.details-field .q-field__control) {
+  height: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+:deep(.details-field .q-field__control:before) {
+  border: none;
+}
+
+:deep(.details-field .q-field__control:after) {
+  border: none;
+}
+
+
+:deep(.details-field.q-field--readonly .q-field__control) {
+  border-style: solid;
+  border-width: 1px;
 }
 
 .status-text {
   padding: 8px 12px;
-  min-height: 32px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -206,6 +234,7 @@ const onDecline = () => handleStatusChange('Declined', 'Decline')
   width: 100%;
 }
 
+/* Responsive styles */
 @media (max-width: 767px) {
   .q-page {
     padding: 12px;
