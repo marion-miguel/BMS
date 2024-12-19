@@ -167,8 +167,7 @@ const isLoading = ref(false)
 const showConfirmDialog = ref(false)
 const confirmationData = ref({
   status: '',
-  actionType: '',
-  reason: ''
+  actionType: ''
 })
 
 // Form Data
@@ -220,8 +219,7 @@ onMounted(() => {
 const openConfirmationDialog = (status, actionType) => {
   confirmationData.value = {
     status,
-    actionType,
-    reason: ''
+    actionType
   }
   showConfirmDialog.value = true
 }
@@ -231,7 +229,7 @@ const handleStatusChange = async () => {
   isLoading.value = true
 
   try {
-    const { status, actionType, reason } = confirmationData.value
+    const { status, actionType } = confirmationData.value
     const newStatus = actionType === 'Approve' ? 'Approved' : 'Declined'
 
     // Update form status
@@ -243,9 +241,7 @@ const handleStatusChange = async () => {
       title: `Leave Application ${newStatus}`,
       approvedBy: 'NADINE LUSTRE', // This should come from your auth system
       status: newStatus,
-      remarks: reason
-        ? `Leave request has been ${newStatus.toLowerCase()}: ${reason}`
-        : `Leave request has been ${newStatus.toLowerCase()}`
+      remarks: `Leave request has been ${newStatus.toLowerCase()}`
     }
 
     activities.value.unshift(newActivity)
@@ -259,7 +255,7 @@ const handleStatusChange = async () => {
 
     // Reset dialog
     showConfirmDialog.value = false
-    confirmationData.value = { status: '', actionType: '', reason: '' }
+    confirmationData.value = { status: '', actionType: '' }
 
   } catch (error) {
     console.error('Error:', error)
@@ -323,5 +319,4 @@ const onDecline = () => openConfirmationDialog('Declined', 'Decline')
     padding: 16px;
   }
 }
-
 </style>
