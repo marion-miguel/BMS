@@ -315,7 +315,6 @@ const showConfirmDialog = ref(false)
 const confirmationData = ref({
   status: '',
   actionType: '',
-  reason: '',
   row: null
 })
 
@@ -324,7 +323,6 @@ const openConfirmationDialog = (status, actionType, row) => {
   confirmationData.value = {
     status,
     actionType,
-    reason: '',
     row
   }
   showConfirmDialog.value = true
@@ -334,7 +332,7 @@ const handleStatusChange = async () => {
   isLoading.value = true
 
   try {
-    const { status, actionType, reason, row } = confirmationData.value
+    const { status, actionType, row } = confirmationData.value
     const newStatus = actionType === 'Approve' ? 'Approved' : 'Declined'
 
     // Update the row's status in the table
@@ -352,7 +350,7 @@ const handleStatusChange = async () => {
 
     // Reset dialog
     showConfirmDialog.value = false
-    confirmationData.value = { status: '', actionType: '', reason: '', row: null }
+    confirmationData.value = { status: '', actionType: '', row: null }
 
   } catch (error) {
     console.error('Error:', error)
