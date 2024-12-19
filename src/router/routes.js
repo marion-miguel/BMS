@@ -57,6 +57,8 @@ const routes = [
       { path: '/LFOV',component: () => import('../pages/view/ListFileOvertimeView.vue')},
       { path: '/LAV',component: () => import('../pages/view/LeaveApplicationView.vue')},
       { path: '/LAVLV',component: () => import('../pages/view/LeaveApplicationListView.vue')},
+      { path: '/OFV',component: () => import('../pages/view/OvertimeFilesView.vue')},
+
 
 //EDIT
       { path: '/LAE',component: () => import('../pages/edit/LeaveApplicationEdit.vue')},
