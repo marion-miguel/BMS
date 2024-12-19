@@ -62,17 +62,17 @@
       <!-- Desktop View -->
       <div class="gt-xs">
         Copy<q-table
-  :rows="paginatedRows"
-  :columns="columns"
-  row-key="id"
-  flat
-  :pagination="computedPagination"
-  @update:pagination="onUpdatePagination"
-  @request="onRequest"
-  :sort-method="customSort"
-  binary-state-sort
-  hide-pagination
->
+          :rows="paginatedRows"
+          :columns="columns"
+          row-key="id"
+          flat
+          :pagination="computedPagination"
+          @update:pagination="onUpdatePagination"
+          @request="onRequest"
+          :sort-method="customSort"
+          binary-state-sort
+          hide-pagination
+        >
           <template v-slot:no-data>
             <div class="full-width row flex-center q-pa-md text-grey-7">
               <div class="text-center">
@@ -101,50 +101,52 @@
           </template>
 
           <template v-slot:body-cell-action="props">
-            <q-td :props="props" class="text-center">
-              <q-btn flat round icon="more_vert">
-                <q-menu>
-                  <q-list style="min-width: 100px">
-                    <q-item>
-                      <div class="column q-gutter-y-sm full-width">
-                        <q-btn
-                          class="q-px-sm width"
-                          unelevated
-                          square
-                          color="info"
-                          icon="visibility"
-                          size="sm"
-                          label="View"
-                          align="left"
-                          @click="viewFile(props.row)"
-                        />
-                        <q-btn
-                          class="q-px-sm width"
-                          unelevated
-                          square
-                          color="info"
-                          icon="edit"
-                          size="sm"
-                          label="Edit"
-                          align="left"
-                        />
-                        <q-btn
-                          class="q-px-sm width"
-                          unelevated
-                          square
-                          color="info"
-                          icon="delete"
-                          size="sm"
-                          label="Delete"
-                          align="left"
-                        />
-                      </div>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-td>
-          </template>
+          <q-td :props="props" class="text-center">
+            <q-btn flat round icon="more_vert">
+              <q-menu>
+                <q-list style="min-width: 100px">
+                  <q-item>
+                    <div class="column q-gutter-y-sm full-width">
+                      <q-btn
+                        class="q-px-sm width"
+                        unelevated
+                        square
+                        color="green"
+                        icon="visibility"
+                        size="sm"
+                        label="View"
+                        align="left"
+                        @click="viewFile(props.row)"
+                      />
+                      <q-btn
+                        class="q-px-sm width"
+                        unelevated
+                        square
+                        color="orange"
+                        icon="check"
+                        size="sm"
+                        label="Approve"
+                        align="left"
+                        @click="approveFile(props.row)"
+                      />
+                      <q-btn
+                        class="q-px-sm width"
+                        unelevated
+                        square
+                        color="red"
+                        icon="close"
+                        size="sm"
+                        label="Decline"
+                        align="left"
+                        @click="declineFile(props.row)"
+                      />
+                    </div>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-td>
+        </template>
         </q-table>
       </div>
 
@@ -197,48 +199,50 @@
                   </div>
 
                   <div class="row justify-start q-mt-sm">
-                    <q-btn flat round icon="more_vert">
-                      <q-menu>
-                        <q-list style="min-width: 150px">
-                          <q-item>
-                            <div class="column q-gutter-y-sm full-width">
-                              <q-btn
-                                class="q-px-sm full-width"
-                                unelevated
-                                square
-                                color="green"
-                                icon="visibility"
-                                size="sm"
-                                label="View"
-                                align="left"
-                                @click="viewFile(row)"
-                              />
-                              <q-btn
-                                class="q-px-sm full-width"
-                                unelevated
-                                square
-                                color="orange"
-                                icon="edit"
-                                size="sm"
-                                label="Edit"
-                                align="left"
-                              />
-                              <q-btn
-                                class="q-px-sm full-width"
-                                unelevated
-                                square
-                                color="red"
-                                icon="delete"
-                                size="sm"
-                                label="Delete"
-                                align="left"
-                              />
-                            </div>
-                          </q-item>
-                        </q-list>
-                      </q-menu>
-                    </q-btn>
-                  </div>
+                  <q-btn flat round icon="more_vert">
+                    <q-menu>
+                      <q-list style="min-width: 150px">
+                        <q-item>
+                          <div class="column q-gutter-y-sm full-width">
+                            <q-btn
+                              class="q-px-sm full-width"
+                              unelevated
+                              square
+                              color="green"
+                              icon="visibility"
+                              size="sm"
+                              label="View"
+                              align="left"
+                              @click="viewFile(row)"
+                            />
+                            <q-btn
+                              class="q-px-sm full-width"
+                              unelevated
+                              square
+                              color="orange"
+                              icon="check"
+                              size="sm"
+                              label="Approve"
+                              align="left"
+                              @click="approveFile(row)"
+                            />
+                            <q-btn
+                              class="q-px-sm full-width"
+                              unelevated
+                              square
+                              color="red"
+                              icon="close"
+                              size="sm"
+                              label="Decline"
+                              align="left"
+                              @click="declineFile(row)"
+                            />
+                          </div>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
+                </div>
                 </div>
               </q-item-section>
             </q-item>
@@ -284,20 +288,63 @@
         </div>
       </div>
     </q-card>
+
+    <q-dialog v-model="showConfirmDialog" persistent>
+    <q-card style="min-width: 350px">
+      <q-card-section class="row items-center">
+        <div class="text-h6">{{ confirmationData.actionType }} Overtime Request</div>
+      </q-card-section>
+
+      <q-card-section class="q-pt-none">
+        <p>Are you sure you want to {{ confirmationData.actionType.toLowerCase() }} this overtime request?</p>
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          label="Cancel"
+          color="grey"
+          v-close-popup
+        />
+        <q-btn
+          :flat="true"
+          :label="confirmationData.actionType"
+          :color="confirmationData.actionType === 'Approve' ? 'orange' : 'red'"
+          :loading="isLoading"
+          @click="handleStatusChange"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
   </q-page>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { date } from 'quasar'
 
 defineOptions({
   name: 'OvertimeFiles'
 })
 
-// State
+// Core utilities
+const router = useRouter()
+const $q = useQuasar()
+
+// State management
 const search = ref('')
 const statusFilter = ref(null)
+const isLoading = ref(false)
+const showConfirmDialog = ref(false)
+const confirmationData = ref({
+  status: '',
+  actionType: '',
+  row: null
+})
 
+// Pagination state
 const pagination = ref({
   sortBy: 'dateCreated',
   descending: false,
@@ -306,65 +353,7 @@ const pagination = ref({
   rowsNumber: 0
 })
 
-
-const customSort = (rows, sortBy, descending) => {
-  const data = [...rows]
-
-  if (sortBy) {
-    const column = columns.find(col => col.name === sortBy)
-    if (!column || !column.sortable) return data
-
-    data.sort((a, b) => {
-      let compareResult = 0
-      const valA = column.field(a)
-      const valB = column.field(b)
-
-      switch (sortBy) {
-        case 'dateCreated':
-        case 'dateFilled':
-          compareResult = new Date(valA) - new Date(valB)
-          break
-
-        case 'timeFromTo':
-          const getMinutes = (timeStr) => {
-            const [time] = timeStr.split(' - ')
-            const [rawTime, period] = time.split(' ')
-            let [hours, minutes] = rawTime.split(':').map(Number)
-            if (period === 'PM' && hours !== 12) hours += 12
-            if (period === 'AM' && hours === 12) hours = 0
-            return hours * 60 + minutes
-          }
-          compareResult = getMinutes(valA) - getMinutes(valB)
-          break
-
-        case 'status':
-          compareResult = String(valA).toLowerCase().localeCompare(String(valB).toLowerCase())
-          break
-
-        default:
-          compareResult = String(valA).toLowerCase().localeCompare(String(valB).toLowerCase())
-      }
-
-      return descending ? -compareResult : compareResult
-    })
-  }
-
-  return data
-}
-
-const onRequest = (props) => {
-  const { page, rowsPerPage, sortBy, descending } = props.pagination
-
-  pagination.value = {
-    ...pagination.value,
-    page,
-    rowsPerPage,
-    sortBy,
-    descending,
-    rowsNumber: filteredRows.value.length
-  }
-}
-
+// Table columns definition
 const columns = [
   {
     name: 'dateCreated',
@@ -426,7 +415,7 @@ const columns = [
 
 // Sample data
 const rows = ref([
-{
+  {
     id: 1,
     dateCreated: 'September 16, 2024',
     name: 'Denden',
@@ -528,6 +517,7 @@ const rows = ref([
   },
 ])
 
+// Status options
 const statusOptions = [
   { label: 'Pending', value: 'pending' },
   { label: 'Approved', value: 'approved' },
@@ -541,6 +531,118 @@ const statusOptions = [
   { label: 'Closed', value: 'closed' },
   { label: 'Check Created', value: 'created' }
 ]
+
+// Action handlers
+const viewFile = (row) => {
+  router.push({
+    path: '/OFV',
+    query: {
+      id: row.id,
+      date: row.dateCreated,
+      description: row.description,
+      timeFrom: row.timeFromTo.split(' - ')[0],
+      timeTo: row.timeFromTo.split(' - ')[1],
+      name: row.name,
+      contactNumber: row.contactNumber || '',
+      status: row.status
+    }
+  })
+}
+
+const openConfirmationDialog = (status, actionType, row) => {
+  confirmationData.value = {
+    status,
+    actionType,
+    row
+  }
+  showConfirmDialog.value = true
+}
+
+const handleStatusChange = async () => {
+  if (isLoading.value) return
+  isLoading.value = true
+
+  try {
+    const { status, actionType, row } = confirmationData.value
+    const newStatus = actionType === 'Approve' ? 'Approved' : 'Declined'
+
+    // Update row status
+    const rowIndex = rows.value.findIndex(r => r.id === row.id)
+    if (rowIndex !== -1) {
+      rows.value[rowIndex].status = newStatus
+    }
+
+    // Show notification
+    $q.notify({
+      type: actionType === 'Approve' ? 'positive' : 'negative',
+      message: `Overtime request ${newStatus.toLowerCase()} successfully`,
+      position: 'top'
+    })
+
+    // Reset dialog
+    showConfirmDialog.value = false
+    confirmationData.value = { status: '', actionType: '', row: null }
+
+  } catch (error) {
+    console.error('Error:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error processing overtime request',
+      position: 'top'
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const approveFile = (row) => openConfirmationDialog('Approved', 'Approve', row)
+const declineFile = (row) => openConfirmationDialog('Declined', 'Decline', row)
+
+// Sorting and filtering
+const customSort = (rows, sortBy, descending) => {
+  const data = [...rows]
+
+  if (sortBy) {
+    const column = columns.find(col => col.name === sortBy)
+    if (!column || !column.sortable) return data
+
+    data.sort((a, b) => {
+      let compareResult = 0
+      const valA = column.field(a)
+      const valB = column.field(b)
+
+      switch (sortBy) {
+        case 'dateCreated':
+        case 'dateFilled':
+          compareResult = new Date(valA) - new Date(valB)
+          break
+
+        case 'timeFromTo':
+          const getMinutes = (timeStr) => {
+            const [time] = timeStr.split(' - ')
+            const [rawTime, period] = time.split(' ')
+            let [hours, minutes] = rawTime.split(':').map(Number)
+            if (period === 'PM' && hours !== 12) hours += 12
+            if (period === 'AM' && hours === 12) hours = 0
+            return hours * 60 + minutes
+          }
+          compareResult = getMinutes(valA) - getMinutes(valB)
+          break
+
+        case 'status':
+          compareResult = String(valA).toLowerCase().localeCompare(String(valB).toLowerCase())
+          break
+
+        default:
+          compareResult = String(valA).toLowerCase().localeCompare(String(valB).toLowerCase())
+      }
+
+      return descending ? -compareResult : compareResult
+    })
+  }
+
+  return data
+}
 
 // Computed properties
 const filteredRows = computed(() => {
@@ -620,11 +722,12 @@ const displayedPages = computed(() => {
   return pages
 })
 
+// Pagination handlers
 const handleRowsPerPageChange = (value) => {
   pagination.value = {
     ...pagination.value,
     rowsPerPage: value,
-    page: 1 // Reset to first page when changing entries per page
+    page: 1
   }
 }
 
@@ -633,6 +736,19 @@ const onUpdatePagination = (newPagination) => {
     ...pagination.value,
     ...newPagination,
     rowsNumber: totalRows.value
+  }
+}
+
+const onRequest = (props) => {
+  const { page, rowsPerPage, sortBy, descending } = props.pagination
+
+  pagination.value = {
+    ...pagination.value,
+    page,
+    rowsPerPage,
+    sortBy,
+    descending,
+    rowsNumber: filteredRows.value.length
   }
 }
 
@@ -654,7 +770,6 @@ const onNextPage = () => {
   }
 }
 
-// Add reset pagination method
 const resetPagination = () => {
   pagination.value = {
     ...pagination.value,
@@ -662,9 +777,8 @@ const resetPagination = () => {
   }
 }
 
-// Update filterData method
 const filterData = () => {
-  pagination.value.page = 1 // Reset to first page when filtering
+  pagination.value.page = 1
 }
 </script>
 
