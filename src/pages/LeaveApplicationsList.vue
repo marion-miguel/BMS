@@ -107,21 +107,21 @@
                       <q-item>
                         <div class="column q-gutter-y-sm full-width">
                           <q-btn
-                            class="q-px-sm full-width"
-                            unelevated
-                            square
-                            color="green"
-                            icon="visibility"
-                            size="sm"
-                            label="View"
-                            align="left"
-                            @click="viewRequest(props.row)"
-                          />
+                          class="q-px-sm full-width"
+                          unelevated
+                          square
+                          color="green"
+                          icon="visibility"
+                          size="sm"
+                          label="View"
+                          align="left"
+                          @click="viewRequest(props.row)"
+                        />
                           <q-btn
                             class="q-px-sm full-width"
                             unelevated
                             square
-                            color="green"
+                            color="orange"
                             icon="check"
                             size="sm"
                             label="Approve"
@@ -132,7 +132,7 @@
                             class="q-px-sm full-width"
                             unelevated
                             square
-                            color="green"
+                            color="red"
                             icon="close"
                             size="sm"
                             label="Decline"
@@ -185,46 +185,49 @@
                       <div class="text-body2">{{ row.typeOfLeave }}</div>
                     </div>
 
-                    <q-btn flat round color="grey" icon="more_vert">
-                      <q-menu>
-                        <q-list style="min-width: 100px">
-                          <q-item>
-                            <div class="column q-gutter-y-sm full-width">
-                              <q-btn
-                                class="q-px-sm width"
-                                unelevated
-                                square
-                                color="green"
-                                icon="visibility"
-                                size="sm"
-                                label="View"
-                                align="left"
-                              />
-                              <q-btn
-                                class="q-px-sm width"
-                                unelevated
-                                square
-                                color="orange"
-                                icon="check"
-                                size="sm"
-                                label="Approve"
-                                align="left"
-                              />
-                              <q-btn
-                                class="q-px-sm width"
-                                unelevated
-                                square
-                                color="red"
-                                icon="close"
-                                size="sm"
-                                label="Decline"
-                                align="left"
-                              />
-                            </div>
-                          </q-item>
-                        </q-list>
-                      </q-menu>
-                    </q-btn>
+                  <q-btn flat round color="grey" icon="more_vert">
+                    <q-menu>
+                      <q-list style="min-width: 100px">
+                        <q-item>
+                          <div class="column q-gutter-y-sm full-width">
+                            <q-btn
+                              class="q-px-sm full-width"
+                              unelevated
+                              square
+                              color="green"
+                              icon="visibility"
+                              size="sm"
+                              label="View"
+                              align="left"
+                              @click="viewRequest(row)"
+                            />
+                            <q-btn
+                              class="q-px-sm full-width"
+                              unelevated
+                              square
+                              color="orange"
+                              icon="check"
+                              size="sm"
+                              label="Approve"
+                              align="left"
+                              @click="approveRequest(row)"
+                            />
+                            <q-btn
+                              class="q-px-sm full-width"
+                              unelevated
+                              square
+                              color="red"
+                              icon="close"
+                              size="sm"
+                              label="Decline"
+                              align="left"
+                              @click="declineRequest(row)"
+                            />
+                          </div>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
                   </div>
                 </q-item-section>
               </q-item>
@@ -268,17 +271,102 @@
     </div>
   </div>
       </q-card>
+      <q-dialog v-model="showConfirmDialog" persistent>
+  <q-card style="min-width: 350px">
+    <q-card-section class="row items-center">
+      <div class="text-h6">{{ confirmationData.actionType }} Leave Request</div>
+    </q-card-section>
+
+    <q-card-section class="q-pt-none">
+      <p>Are you sure you want to {{ confirmationData.actionType.toLowerCase() }} this leave request?</p>
+    </q-card-section>
+
+    <q-card-actions align="right">
+      <q-btn
+        flat
+        label="Cancel"
+        color="grey"
+        v-close-popup
+      />
+      <q-btn
+        :flat="true"
+        :label="confirmationData.actionType"
+        :color="confirmationData.actionType === 'Approve' ? 'orange' : 'red'"
+        :loading="isLoading"
+        @click="handleStatusChange"
+      />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
     </q-page>
   </template>
 
   <script setup>
   import { ref, computed } from 'vue'
+  import { useRouter } from 'vue-router'
+
 
   defineOptions({
     name: 'LeaveApplicationsList'
   })
 
-  // Table configuration
+
+const showConfirmDialog = ref(false)
+const confirmationData = ref({
+  status: '',
+  actionType: '',
+  reason: '',
+  row: null
+})
+
+// Add these methods after the existing methods in your script setup
+const openConfirmationDialog = (status, actionType, row) => {
+  confirmationData.value = {
+    status,
+    actionType,
+    reason: '',
+    row
+  }
+  showConfirmDialog.value = true
+}
+const handleStatusChange = async () => {
+  if (isLoading.value) return
+  isLoading.value = true
+
+  try {
+    const { status, actionType, reason, row } = confirmationData.value
+    const newStatus = actionType === 'Approve' ? 'Approved' : 'Declined'
+
+    // Update the row's status in the table
+    const rowIndex = rows.value.findIndex(r => r.id === row.id)
+    if (rowIndex !== -1) {
+      rows.value[rowIndex].status = newStatus
+    }
+
+    // Show success notification
+    $q.notify({
+      type: actionType === 'Approve' ? 'positive' : 'negative',
+      message: `Leave request ${newStatus.toLowerCase()} successfully`,
+      position: 'top'
+    })
+
+    // Reset dialog
+    showConfirmDialog.value = false
+    confirmationData.value = { status: '', actionType: '', reason: '', row: null }
+
+  } catch (error) {
+    console.error('Error:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error processing leave request',
+      position: 'top'
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+
   const columns = [
   {
     name: 'dateCreated',
@@ -621,17 +709,29 @@ const customSort = (rows, sortBy, descending) => {
     }
   }
 
-  const viewRequest = (row) => {
-    console.log('View request:', row)
-  }
+  const router = useRouter()
 
-  const approveRequest = (row) => {
-    console.log('Approve request:', row)
-  }
+const viewRequest = (row) => {
+  router.push({
+    path: '/LAVLV',
+    query: {
+      id: row.id,
+      dateCreated: row.dateCreated,
+      employeeName: row.employeeName,
+      typeOfLeave: row.typeOfLeave,
+      leaveDate: row.leaveDate,
+      status: row.status
+    }
+  })
+}
 
-  const declineRequest = (row) => {
-    console.log('Decline request:', row)
-  }
+const approveRequest = (row) => {
+  openConfirmationDialog('Approved', 'Approve', row)
+}
+
+const declineRequest = (row) => {
+  openConfirmationDialog('Declined', 'Decline', row)
+}
   </script>
 
   <style>
@@ -741,6 +841,8 @@ const customSort = (rows, sortBy, descending) => {
 
     .mobile-list-item {
       margin: 8px 0;
+      padding: 16px !important;
+
     }
 
     /* Mobile action buttons */
@@ -819,5 +921,24 @@ const customSort = (rows, sortBy, descending) => {
 
   .overflow-hidden {
     overflow: hidden;
+  }
+  .mobile-list-item .q-gutter-sm > * {
+    margin: 4px;
+  }
+  .mobile-list-item .q-btn {
+    min-width: 36px;
+    padding: 4px 8px;
+  }
+
+  /* Improved spacing for mobile status */
+  .mobile-list-item .status-text {
+    margin-top: 4px;
+  }
+
+  /* Better alignment for action buttons */
+  .mobile-list-item .row.justify-end {
+    margin-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    padding-top: 12px;
   }
   </style>
