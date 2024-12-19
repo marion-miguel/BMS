@@ -10,10 +10,13 @@ Policies✅
 *Attendance
 	Attendance
 	List Missing Logs✅
+		View✅
 	List File Overtime✅
 		Apply✅
+		View✅
 	Leave Application✅
 		Apply✅
+		View✅
 *For Approver
 	List of Leave Applications
 	List of Overtime Files
