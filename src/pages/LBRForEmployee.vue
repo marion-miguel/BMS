@@ -69,7 +69,7 @@
             </q-td>
           </template>
 
-          <template v-slot:body-cell-action="props">
+
             <q-td :props="props" class="text-center">
               <q-btn flat round color="grey" icon="more_vert">
                 <q-menu>
@@ -80,12 +80,34 @@
                           class="q-px-sm width"
                           unelevated
                           square
-                          color ="green"
+                          color="green"
                           icon="visibility"
                           size="sm"
                           label="View"
                           align="left"
                           @click="viewDetails(props.row)"
+                        />
+                        <q-btn
+                          class="q-px-sm width"
+                          unelevated
+                          square
+                          color="orange"
+                          icon="check"
+                          size="sm"
+                          label="Approve"
+                          align="left"
+                          @click="onApprove(props.row)"
+                        />
+                        <q-btn
+                          class="q-px-sm width"
+                          unelevated
+                          square
+                          color="red"
+                          icon="close"
+                          size="sm"
+                          label="Decline"
+                          align="left"
+                          @click="onDecline(props.row)"
                         />
                       </div>
                     </q-item>
@@ -93,7 +115,53 @@
                 </q-menu>
               </q-btn>
             </q-td>
-          </template>
+      <template v-slot:body-cell-action="props">
+          <q-td :props="props" class="text-center">
+        <q-btn flat round color="grey" icon="more_vert">
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item>
+                <div class="column q-gutter-y-sm full-width">
+                  <q-btn
+                    class="q-px-sm width"
+                    unelevated
+                    square
+                    color="green"
+                    icon="visibility"
+                    size="sm"
+                    label="View"
+                    align="left"
+                    @click="viewDetails(props.row)"
+                  />
+                  <q-btn
+                    class="q-px-sm width"
+                    unelevated
+                    square
+                    color="orange"
+                    icon="check"
+                    size="sm"
+                    label="Approve"
+                    align="left"
+                    @click="onApprove(props.row)"
+                  />
+                  <q-btn
+                    class="q-px-sm width"
+                    unelevated
+                    square
+                    color="red"
+                    icon="close"
+                    size="sm"
+                    label="Decline"
+                    align="left"
+                    @click="onDecline(props.row)"
+                  />
+                </div>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </q-td>
+            </template>
         </q-table>
       </div>
 
@@ -133,12 +201,34 @@
                               class="q-px-sm width"
                               unelevated
                               square
-                              color ="green"
+                              color="green"
                               icon="visibility"
                               size="sm"
                               label="View"
                               align="left"
                               @click="viewDetails(row)"
+                            />
+                            <q-btn
+                              class="q-px-sm width"
+                              unelevated
+                              square
+                              color="orange"
+                              icon="check"
+                              size="sm"
+                              label="Approve"
+                              align="left"
+                              @click="onApprove(row)"
+                            />
+                            <q-btn
+                              class="q-px-sm width"
+                              unelevated
+                              square
+                              color="red"
+                              icon="close"
+                              size="sm"
+                              label="Decline"
+                              align="left"
+                              @click="onDecline(row)"
                             />
                           </div>
                         </q-item>
@@ -190,11 +280,50 @@
         </div>
       </div>
     </q-card>
+    <q-dialog v-model="showConfirmDialog" persistent>
+  <q-card style="min-width: 350px">
+    <q-card-section class="row items-center">
+      <div class="text-h6">{{ confirmationData.actionType }} Budget Request</div>
+    </q-card-section>
+
+    <q-card-section class="q-pt-none">
+      <p>Are you sure you want to {{ confirmationData.actionType.toLowerCase() }} this budget request?</p>
+    </q-card-section>
+
+    <q-card-actions align="right">
+      <q-btn
+        flat
+        label="Cancel"
+        color="grey"
+        v-close-popup
+      />
+      <q-btn
+        :flat="true"
+        :label="confirmationData.actionType"
+        :color="confirmationData.actionType === 'Approve' ? 'green' : 'red'"
+        :loading="isLoading"
+        @click="handleStatusChange"
+      />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
   </q-page>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+
+const $q = useQuasar()
+const router = useRouter()
+const isLoading = ref(false)
+const showConfirmDialog = ref(false)
+const confirmationData = ref({
+  status: '',
+  actionType: '',
+  row: null
+})
 
 defineOptions({
   name: 'LBRForEmployee'
@@ -204,7 +333,62 @@ const search = ref('')
 const sortBy = ref('dateCreated')
 const descending = ref(false)
 
-// Updated pagination with sorting state
+const onApprove = (row) => {
+  confirmationData.value = {
+    status: 'Approved',
+    actionType: 'Approve',
+    row
+  }
+  showConfirmDialog.value = true
+}
+
+const onDecline = (row) => {
+  confirmationData.value = {
+    status: 'Declined',
+    actionType: 'Decline',
+    row
+  }
+  showConfirmDialog.value = true
+}
+
+// Add this new function
+const handleStatusChange = async () => {
+  if (isLoading.value) return
+  isLoading.value = true
+
+  try {
+    const { status, actionType, row } = confirmationData.value
+    const newStatus = actionType === 'Approve' ? 'Approved' : 'Declined'
+
+    // Find and update the row in the table
+    const rowIndex = rows.value.findIndex(r => r.id === row.id)
+    if (rowIndex !== -1) {
+      rows.value[rowIndex].status = newStatus
+    }
+
+    // Show notification
+    $q.notify({
+      type: actionType === 'Approve' ? 'positive' : 'negative',
+      message: `Budget request ${newStatus.toLowerCase()} successfully`,
+      position: 'top'
+    })
+
+    // Reset dialog
+    showConfirmDialog.value = false
+    confirmationData.value = { status: '', actionType: '', row: null }
+
+  } catch (error) {
+    console.error('Error:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error processing budget request',
+      position: 'top'
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const pagination = ref({
   sortBy: 'dateCreated',
   descending: false,
@@ -477,7 +661,44 @@ const getStatusColorClass = (status) => {
 }
 
 const viewDetails = (row) => {
-  console.log('View details', row)
+  router.push({
+    path: '/LBRFEV',
+    query: {
+      id: row.id,
+      dateCreated: row.dateCreated,
+      employeeName: row.employeeName,
+      projectName: row.projectName,
+      status: row.status
+    }
+  })
+}
+
+const handleApprove = (row) => {
+  router.push({
+    path: '/LBRFEV',
+    query: {
+      id: row.id,
+      dateCreated: row.dateCreated,
+      employeeName: row.employeeName,
+      projectName: row.projectName,
+      status: row.status,
+      action: 'approve'
+    }
+  })
+}
+
+const handleDecline = (row) => {
+  router.push({
+    path: '/LBRFEV',
+    query: {
+      id: row.id,
+      dateCreated: row.dateCreated,
+      employeeName: row.employeeName,
+      projectName: row.projectName,
+      status: row.status,
+      action: 'decline'
+    }
+  })
 }
 </script>
 
@@ -549,5 +770,44 @@ const viewDetails = (row) => {
 
 .q-mb-sm-xs {
   margin-bottom: 8px;
+}
+
+.mobile-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.mobile-card .q-btn {
+  min-width: 0;
+}
+
+.mobile-card .q-menu {
+  min-width: 200px;
+}
+
+/* Make buttons full width in mobile menu */
+.q-menu .width {
+  width: 100% !important;
+  min-height: 32px;
+}
+
+/* Ensure proper spacing in mobile view */
+@media (max-width: 599px) {
+  .mobile-card .q-card-section {
+    padding: 12px;
+  }
+
+  .mobile-card .q-btn {
+    padding: 4px;
+  }
+
+  .mobile-card .column.q-gutter-y-sm > * {
+    margin-bottom: 4px;
+  }
+
+  .q-menu {
+    max-width: calc(100vw - 32px);
+  }
 }
 </style>
