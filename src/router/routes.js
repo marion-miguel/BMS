@@ -56,6 +56,7 @@ const routes = [
       { path: '/MLV',component: () => import('../pages/view/MissingLogsView.vue')},
       { path: '/LFOV',component: () => import('../pages/view/ListFileOvertimeView.vue')},
       { path: '/LAV',component: () => import('../pages/view/LeaveApplicationView.vue')},
+      { path: '/LAVLV',component: () => import('../pages/view/LeaveApplicationListView.vue')},
 
 //EDIT
       { path: '/LAE',component: () => import('../pages/edit/LeaveApplicationEdit.vue')},
